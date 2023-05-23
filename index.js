@@ -1,4 +1,4 @@
-const { getConfigurableProducts } = require('./api_calls/get')
+const { getConfigAndChildProducts } = require('./api_calls/get')
 const { updateProductDescription } = require('./api_calls/set')
 
 /**
@@ -60,10 +60,11 @@ async function updateProductDescriptions(products) {
 }
 
 async function main() {
-    const configProducts = await getConfigurableProducts()
-    console.log(configProducts)
-    // const productsWithTables = getProductsWithTables(configProducts)
-    // const productsWithoutTables = removeTables(productsWithTables)
-    // console.log(await updateProductDescriptions(productsWithoutTables))
+    const products = await getConfigAndChildProducts()
+    console.log(products)
+    const productsWithTables = getProductsWithTables(products)
+    console.log(productsWithTables.length)
+    const productsWithoutTables = removeTables(productsWithTables)
+    console.log(await updateProductDescriptions(productsWithoutTables))
 }
 main()
