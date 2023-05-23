@@ -27,6 +27,8 @@ async function getConfigurableProducts() {
         params: {
             fields: "items[sku,custom_attributes,id]",
             searchCriteria: {
+                // currentPage: 1,
+                // pageSize: 1000,
                 filter_groups: [
                     {
                         filters: [
@@ -84,3 +86,41 @@ function removeTables(products) {
         description: removeTable(prod.description)
     }))
 }
+
+async function updateProductDescription(sku, description) {
+    let updated = false
+    const config = {
+        "storeCode": "all"
+    },
+    data = {
+        "product": {
+            "sku": sku,
+            "custom_attributes": [
+                {"attribute_code": "description", "value": description}
+            ]
+        }
+    }
+    try {
+        updated = !! await admin.put(`products/${encodeURIComponent(sku)}`, data, config)
+    } catch(e) {
+        console.log(e.response.data)
+    }
+
+    return updated
+}
+
+async function updateProductDescriptions(products) {
+    const results = []
+    for (const prod of products) {
+        results.push({sku: prod.sku, updated: await updateProductDescription(prod.sku, prod.description)})
+    }
+    return results
+}
+
+async function main() {
+    const configProducts = await getConfigurableProducts()
+    const productsWithTables = getProductsWithTables(configProducts)
+    const productsWithoutTables = removeTables(productsWithTables)
+    console.log(await updateProductDescriptions(productsWithoutTables))
+}
+main()
