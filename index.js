@@ -41,3 +41,24 @@ async function getConfigurableProducts() {
     })
     return configProducts
 }
+
+/**
+ * returns the products that contain tables in there description
+ * @param {Array.<Object>} configProducts - containing product information, must have the minimum {id, sku, custom_attribute: [{attribute_code, value}, {...}]}
+ * @returns {Array.<Object>} products that contain a table in there description, the objects have been mutated {id: x, sku, 'some string', description: 'html in here'}
+ */
+function getProductsWithTables(configProducts) {
+    return configProducts.reduce((accumulator, currentValue) => {
+        for (const attr of currentValue.custom_attributes) {
+            if (attr.attribute_code === 'description' && attr.value.includes('<table')) {
+                accumulator.push({
+                    id: currentValue.id,
+                    sku: currentValue.sku,
+                    description: attr.value
+                })
+                return accumulator
+            }
+        }
+        return accumulator
+    }, [])
+}
