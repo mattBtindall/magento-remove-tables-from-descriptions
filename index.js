@@ -27,8 +27,6 @@ async function getConfigurableProducts() {
         params: {
             fields: "items[sku,custom_attributes,id]",
             searchCriteria: {
-                currentPage: 1,
-                pageSize: 100,
                 filter_groups: [
                     {
                         filters: [
@@ -48,17 +46,41 @@ async function getConfigurableProducts() {
  * @returns {Array.<Object>} products that contain a table in there description, the objects have been mutated {id: x, sku, 'some string', description: 'html in here'}
  */
 function getProductsWithTables(configProducts) {
-    return configProducts.reduce((accumulator, currentValue) => {
-        for (const attr of currentValue.custom_attributes) {
+    return configProducts.reduce((products, currentProduct) => {
+        for (const attr of currentProduct.custom_attributes) {
             if (attr.attribute_code === 'description' && attr.value.includes('<table')) {
-                accumulator.push({
-                    id: currentValue.id,
-                    sku: currentValue.sku,
+                console.log(`${currentProduct.sku} contains a table`)
+                products.push({
+                    id: currentProduct.id,
+                    sku: currentProduct.sku,
                     description: attr.value
                 })
-                return accumulator
+                return products
             }
         }
-        return accumulator
+        return products
     }, [])
+}
+
+/**
+ * removes any table elemenets from the given string
+ * @param {String} description - string contaning html elements
+ * @returns {String} with the html element removed
+ */
+function removeTable(description) {
+    const pattern = new RegExp('<table[^>]*>[\\s\\S]*?</table>', 'gi');
+    return description.replace(pattern, '');
+}
+
+/**
+ * removes tables from the given products
+ * @param {Array.<Object>} products - products with the minimum requirments {id: x, sku, 'some string', description: 'html in here'}
+ * @returns {Array.<Object>} products with the above properties
+ */
+function removeTables(products) {
+    return products.map(prod => ({
+        id: prod.id,
+        sku: prod.sku,
+        description: removeTable(prod.description)
+    }))
 }
