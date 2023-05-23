@@ -61,8 +61,9 @@ async function updateProductDescriptions(products) {
 
 async function main() {
     const configProducts = await getConfigurableProducts()
-    const productsWithTables = getProductsWithTables(configProducts)
-    const productsWithoutTables = removeTables(productsWithTables)
-    console.log(await updateProductDescriptions(productsWithoutTables))
+    console.log(configProducts)
+    // const productsWithTables = getProductsWithTables(configProducts)
+    // const productsWithoutTables = removeTables(productsWithTables)
+    // console.log(await updateProductDescriptions(productsWithoutTables))
 }
 main()
