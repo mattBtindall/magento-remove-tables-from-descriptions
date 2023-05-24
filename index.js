@@ -1,5 +1,6 @@
 const { getConfigProducts } = require('./api_calls/get')
 const { updateProductDescription } = require('./api_calls/set')
+const { writeSkusToCsv } = require('./outputCsv')
 
 /**
  * returns the products that contain tables in there description
@@ -62,7 +63,9 @@ async function updateProductDescriptions(products) {
 async function main() {
     const products = await getConfigProducts()
     const productsWithTables = getProductsWithTables(products)
-    const productsWithoutTables = removeTables(productsWithTables)
-    console.log(await updateProductDescriptions(productsWithoutTables))
+    const productSkus = productsWithTables.map(prod => ({sku: prod.sku}))
+    writeSkusToCsv(productSkus)
+    // const productsWithoutTables = removeTables(productsWithTables)
+    // console.log(await updateProductDescriptions(productsWithoutTables))
 }
 main()
